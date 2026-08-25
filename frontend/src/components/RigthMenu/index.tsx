@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../../context/authStore";
 import { useAuth } from "../../context/useAuth";
 
 type RightMenuProps = {
@@ -10,12 +11,11 @@ type RightMenuProps = {
 
 const RightMenu = ({ className }: RightMenuProps) => {
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-    const { user, isAuthenticated, clearSession } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const linkHover = "hover:cursor-pointer hover:scale-110 transition";
 
     const handleLogout = () => {
-        clearSession();
-        setIsAccountMenuOpen(false);
+        useAuthStore.persist.clearStorage();
         window.location.replace("/");
     };
 
@@ -55,6 +55,7 @@ const RightMenu = ({ className }: RightMenuProps) => {
                                         {user?.email}
                                     </p>
                                 </div>
+
                                 <button
                                     type="button"
                                     role="menuitem"
