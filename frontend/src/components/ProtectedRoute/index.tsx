@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { createSearchParams, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { getAuthenticatedUser } from "../../services/auth.service";
 import LoadingSpinner from "../LoadingSpinner";
@@ -48,7 +48,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
     if (!token) {
         const requestedPath = `${location.pathname}${location.search}${location.hash}`;
-        return <Navigate to="/login" replace state={{ from: requestedPath }} />;
+        const loginSearch = createSearchParams({
+            referer: requestedPath,
+        }).toString();
+
+        return <Navigate to={`/login?${loginSearch}`} replace />;
     }
 
     if (isValidating) {

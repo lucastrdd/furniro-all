@@ -1,7 +1,7 @@
 import axios from "axios";
 import { LoaderCircle } from "lucide-react";
 import { useState, type SyntheticEvent } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import AuthField from "../../components/AuthField";
 import AuthLayout from "../../components/AuthLayout";
@@ -54,10 +54,10 @@ const Login = () => {
     const [serverError, setServerError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { isAuthenticated, setSession } = useAuth();
-    const location = useLocation();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
-    const requestedPath = (location.state as { from?: unknown } | null)?.from;
+    const requestedPath = searchParams.get("referer");
     const destination = getSafeDestination(requestedPath);
 
     if (isAuthenticated) {
@@ -122,6 +122,7 @@ const Login = () => {
                         updateField("email", event.target.value)
                     }
                 />
+
                 <AuthField
                     id="password"
                     label="Password"
