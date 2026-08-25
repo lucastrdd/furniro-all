@@ -8,11 +8,12 @@ import Product from "./pages/Product/page";
 import Shop from "./pages/Shop/page";
 import Cart from "./pages/Cart/page";
 import Register from "./pages/Register/page";
+import Login from "./pages/Login/page";
 import NotFoundPage from "./pages/NotFoundPage";
 
 const App = () => {
     const { pathname } = useLocation();
-    const isAuthPage = pathname === "/register";
+    const isAuthPage = pathname === "/register" || pathname === "/login";
 
     return (
         <>
@@ -29,6 +30,7 @@ const App = () => {
                 <Route path="/product/:slug" element={<Product />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
             {!isAuthPage && (
