@@ -1,7 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import type { AuthService } from "../services/auth.service.js";
 import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
-import { BadRequestException } from "../middlewares/http-exception.middleware.js";
+import {
+    BadRequestException,
+    UnauthorizedException,
+} from "../middlewares/http-exception.middleware.js";
 import logger from "../utils/logger/logger.js";
 
 export default class AuthController {
@@ -58,5 +61,19 @@ export default class AuthController {
             );
             next(error);
         }
+    }
+
+    me(req: Request, res: Response, next: NextFunction): void {
+        if (!req.auth) {
+            next(new UnauthorizedException("Authentication is required"));
+            return;
+        }
+
+        res.status(200).json({
+            user: {
+                id: req.auth.userId,
+                email: req.auth.email,
+            },
+        });
     }
 }
