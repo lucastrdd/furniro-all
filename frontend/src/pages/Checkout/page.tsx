@@ -83,6 +83,7 @@ const Checkout = () => {
     const {
         register,
         handleSubmit,
+        setValue,
         watch,
         formState: { errors },
     } = useForm<CheckoutFormData>({
@@ -119,7 +120,27 @@ const Checkout = () => {
             setZipLookupStatus("loading");
 
             try {
-                await lookupAddressByZipCode(zipCode, controller.signal);
+                const address = await lookupAddressByZipCode(
+                    zipCode,
+                    controller.signal,
+                );
+
+                setValue("countryRegion", "Brazil", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                });
+                setValue("streetAddress", address.logradouro, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                });
+                setValue("townCity", address.localidade, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                });
+                setValue("province", address.estado || address.uf, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                });
                 setZipLookupStatus("found");
             } catch (error) {
                 if (controller.signal.aborted) {
@@ -138,7 +159,7 @@ const Checkout = () => {
             window.clearTimeout(timeoutId);
             controller.abort();
         };
-    }, [zipCode]);
+    }, [setValue, zipCode]);
 
     const zipCodeFeedback = (() => {
         if (zipLookupStatus === "loading") {
