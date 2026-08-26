@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState, type ReactNode } from "react";
+import toast from "react-hot-toast";
 import {
     useForm,
     useWatch,
@@ -243,6 +244,10 @@ const Checkout = () => {
         return null;
     })();
 
+    const handlePlaceOrder = () => {
+        toast.success("Order placed successfully!");
+    };
+
     return (
         <Container className="bg-white">
             <div className="w-full overflow-x-clip font-poppins leading-normal">
@@ -255,7 +260,7 @@ const Checkout = () => {
                 />
 
                 <main className="mx-auto w-full max-w-[1240px] px-4 py-12 sm:px-8 md:py-20 xl:px-0 xl:py-[98px]">
-                    <form noValidate onSubmit={handleSubmit(() => undefined)}>
+                    <form noValidate onSubmit={handleSubmit(handlePlaceOrder)}>
                         <div className="grid gap-16 lg:grid-cols-2 lg:gap-14 xl:grid-cols-[608px_533px] xl:gap-[99px]">
                             <section aria-labelledby="billing-details-title">
                                 <h2
