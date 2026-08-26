@@ -3,20 +3,28 @@ import { LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../context/authStore";
+import { useCartStore } from "../../context/cartStore";
 import { useAuth } from "../../context/useAuth";
 
 type RightMenuProps = {
     className?: string;
+    onCartClick?: () => void;
 };
 
-const RightMenu = ({ className }: RightMenuProps) => {
+const RightMenu = ({ className, onCartClick }: RightMenuProps) => {
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
     const { user, isAuthenticated } = useAuth();
+    const openDrawer = useCartStore((state) => state.openDrawer);
     const linkHover = "hover:cursor-pointer hover:scale-110 transition";
 
     const handleLogout = () => {
         useAuthStore.persist.clearStorage();
         window.location.replace("/");
+    };
+
+    const handleCartClick = () => {
+        openDrawer();
+        onCartClick?.();
     };
 
     return (
@@ -81,12 +89,13 @@ const RightMenu = ({ className }: RightMenuProps) => {
                 )}
             </div>
 
-            <Link
-                to="/cart"
-                aria-label="View shopping cart"
+            <button
+                type="button"
+                aria-label="Open shopping cart"
+                onClick={handleCartClick}
                 className={linkHover}>
                 <img src="/Icons/shop.svg" alt="" className="max-h-[22.05px]" />
-            </Link>
+            </button>
         </div>
     );
 };

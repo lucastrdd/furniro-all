@@ -45,7 +45,10 @@ const MobileMenu = ({ className }: MobileMenuProps) => {
                             hidden: !isOpen,
                         },
                     )}>
-                    <RightMenu className="mt-6" />
+                    <RightMenu
+                        onCartClick={() => setIsOpen(false)}
+                        className="mt-6"
+                    />
                 </NavMenu>
             </div>
         </div>
