@@ -1,7 +1,17 @@
 import { ShoppingBag } from "lucide-react";
 import { useCartStore } from "../../context/cartStore";
+import NumberToStringRS from "../../utils/NumberToStringRS";
+
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
+const getImageUrl = (image: string) =>
+    image.startsWith("http") ? image : `${API_URL}${image}`;
+
+const getItemPrice = (price: number, discountPrice?: number | null) =>
+    discountPrice ? price - price * (discountPrice / 100) : price;
 
 const CartDrawer = () => {
+    const items = useCartStore((state) => state.items);
     const isDrawerOpen = useCartStore((state) => state.isDrawerOpen);
     const closeDrawer = useCartStore((state) => state.closeDrawer);
 
@@ -41,9 +51,57 @@ const CartDrawer = () => {
                 </header>
 
                 <div
-                    className="min-h-0 flex-1"
-                    aria-label="Shopping cart items"
-                />
+                    className="min-h-0 flex-1 overflow-y-auto px-[30px] py-[27px]"
+                    aria-label="Shopping cart items">
+                    {items.length === 0 ? (
+                        <div className="flex h-full min-h-40 items-center justify-center text-center text-[16px] text-[#9F9F9F]">
+                            Your cart is empty.
+                        </div>
+                    ) : (
+                        <ul className="space-y-5">
+                            {items.map((item) => {
+                                const itemPrice = getItemPrice(
+                                    item.price,
+                                    item.discountPrice,
+                                );
+
+                                return (
+                                    <li
+                                        key={item.id}
+                                        className="grid min-h-[105px] grid-cols-[105px_minmax(0,1fr)] items-center gap-8">
+                                        <div className="flex h-[105px] w-[105px] items-center justify-center overflow-hidden rounded-[10px] bg-[#F9F1E7]">
+                                            <img
+                                                src={getImageUrl(item.image)}
+                                                alt={item.name}
+                                                className="h-full w-full object-contain"
+                                            />
+                                        </div>
+
+                                        <div className="min-w-0 pr-6">
+                                            <p
+                                                title={item.name}
+                                                className="truncate text-[16px]">
+                                                {item.name}
+                                            </p>
+                                            <p className="mt-2 flex items-center gap-[15px] text-[12px]">
+                                                <span>{item.quantity}</span>
+                                                <span aria-hidden="true">
+                                                    ×
+                                                </span>
+                                                <span className="text-over-secundary">
+                                                    Rs.{" "}
+                                                    {NumberToStringRS(
+                                                        itemPrice,
+                                                    )}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
+                </div>
 
                 <div className="flex min-h-[70px] items-center justify-between px-[30px] text-[16px]">
                     <span>Subtotal</span>
