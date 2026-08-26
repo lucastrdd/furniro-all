@@ -76,7 +76,7 @@ const BillingField = ({
                 error ? `${id}-error` : feedback ? `${id}-feedback` : undefined
             }
             {...register(id)}
-            className="h-[75px] w-full rounded-[10px] border border-[#9F9F9F] bg-white px-5 text-base text-black outline-none transition aria-invalid:border-red-600 focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F] aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600"
+            className="h-[75px] min-w-0 w-full rounded-[10px] border border-[#9F9F9F] bg-white px-5 text-base text-black outline-none transition aria-invalid:border-red-600 focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F] aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600"
         />
         {error && (
             <p id={`${id}-error`} role="alert" className="text-sm text-red-600">
@@ -260,9 +260,14 @@ const Checkout = () => {
                 />
 
                 <main className="mx-auto w-full max-w-[1240px] px-4 py-12 sm:px-8 md:py-20 xl:px-0 xl:py-[98px]">
-                    <form noValidate onSubmit={handleSubmit(handlePlaceOrder)}>
+                    <form
+                        noValidate
+                        onSubmit={handleSubmit(handlePlaceOrder)}
+                        className="min-w-0">
                         <div className="grid gap-16 lg:grid-cols-2 lg:gap-14 xl:grid-cols-[608px_533px] xl:gap-[99px]">
-                            <section aria-labelledby="billing-details-title">
+                            <section
+                                aria-labelledby="billing-details-title"
+                                className="min-w-0">
                                 <h2
                                     id="billing-details-title"
                                     className="mb-9 text-[32px] font-semibold text-black md:mb-10 md:text-[36px]">
@@ -356,7 +361,7 @@ const Checkout = () => {
                                             {...register(
                                                 "additionalInformation",
                                             )}
-                                            className="min-h-[75px] w-full resize-y rounded-[10px] border border-[#9F9F9F] bg-white px-5 py-6 text-base text-black outline-none transition placeholder:text-[#9F9F9F] focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F]"
+                                            className="min-h-[75px] min-w-0 w-full resize-y rounded-[10px] border border-[#9F9F9F] bg-white px-5 py-6 text-base text-black outline-none transition placeholder:text-[#9F9F9F] focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F]"
                                         />
                                     </div>
                                 </div>
@@ -364,15 +369,15 @@ const Checkout = () => {
 
                             <aside
                                 aria-labelledby="order-summary-title"
-                                className="lg:pt-8">
+                                className="min-w-0 lg:pt-8">
                                 <div className="border-b border-[#D9D9D9] pb-8">
-                                    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-6 gap-y-5">
+                                    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-5 sm:gap-x-6">
                                         <h2
                                             id="order-summary-title"
-                                            className="text-2xl font-medium text-black">
+                                            className="text-xl font-medium text-black sm:text-2xl">
                                             Product
                                         </h2>
-                                        <p className="text-right text-2xl font-medium text-black">
+                                        <p className="text-right text-xl font-medium text-black sm:text-2xl">
                                             Subtotal
                                         </p>
 
@@ -391,15 +396,15 @@ const Checkout = () => {
                                                 return (
                                                     <div
                                                         key={item.id}
-                                                        className="col-span-2 grid grid-cols-[minmax(0,1fr)_auto] gap-x-6">
-                                                        <p className="min-w-0 text-base text-[#9F9F9F]">
+                                                        className="col-span-2 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-x-3 sm:gap-x-6">
+                                                        <p className="min-w-0 [overflow-wrap:anywhere] text-base text-[#9F9F9F]">
                                                             {item.name}
                                                             <span className="ml-3 text-xs font-medium text-black">
                                                                 X{" "}
                                                                 {item.quantity}
                                                             </span>
                                                         </p>
-                                                        <p className="whitespace-nowrap text-right text-base font-light text-black">
+                                                        <p className="whitespace-nowrap text-right text-sm font-light text-black xxs:text-base">
                                                             Rs.{" "}
                                                             {formatRs(
                                                                 itemSubtotal,
@@ -413,14 +418,14 @@ const Checkout = () => {
                                         <p className="text-base text-black">
                                             Subtotal
                                         </p>
-                                        <p className="whitespace-nowrap text-right text-base font-light text-black">
+                                        <p className="whitespace-nowrap text-right text-sm font-light text-black xxs:text-base">
                                             Rs. {formatRs(subtotal)}
                                         </p>
 
                                         <p className="self-center text-base text-black">
                                             Total
                                         </p>
-                                        <p className="whitespace-nowrap text-right text-2xl font-bold text-[#B88E2F]">
+                                        <p className="whitespace-nowrap text-right text-xl font-bold text-[#B88E2F] sm:text-2xl">
                                             Rs. {formatRs(total)}
                                         </p>
                                     </div>
