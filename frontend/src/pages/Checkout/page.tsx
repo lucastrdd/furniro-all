@@ -1,9 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState, type ReactNode } from "react";
 import { useForm, type FieldPath, type UseFormRegister } from "react-hook-form";
 import { z } from "zod";
 import BenefitsCard from "../../components/BenefitsCard";
 import BannerCard from "../../components/BannerCard";
 import Container from "../../components/Container";
+import {
+    lookupAddressByZipCode,
+    normalizeZipCode,
+    ZipCodeNotFoundError,
+} from "../../services/viacep.service";
 
 const checkoutSchema = z.object({
     firstName: z.string().trim().min(1, "Enter your first name."),
@@ -35,6 +41,7 @@ type BillingFieldProps = {
     autoComplete?: string;
     register: UseFormRegister<CheckoutFormData>;
     error?: string;
+    feedback?: ReactNode;
 };
 
 const BillingField = ({
@@ -44,6 +51,7 @@ const BillingField = ({
     autoComplete,
     register,
     error,
+    feedback,
 }: BillingFieldProps) => (
     <div className="space-y-5">
         <label htmlFor={id} className="block text-base font-medium text-black">
@@ -54,7 +62,9 @@ const BillingField = ({
             type={type}
             autoComplete={autoComplete}
             aria-invalid={Boolean(error)}
-            aria-describedby={error ? `${id}-error` : undefined}
+            aria-describedby={
+                error ? `${id}-error` : feedback ? `${id}-feedback` : undefined
+            }
             {...register(id)}
             className="h-[75px] w-full rounded-[10px] border border-[#9F9F9F] bg-white px-5 text-base text-black outline-none transition aria-invalid:border-red-600 focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F] aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600"
         />
@@ -63,13 +73,17 @@ const BillingField = ({
                 {error}
             </p>
         )}
+        {!error && feedback && <div id={`${id}-feedback`}>{feedback}</div>}
     </div>
 );
+
+type ZipLookupStatus = "idle" | "loading" | "found" | "not-found" | "error";
 
 const Checkout = () => {
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm<CheckoutFormData>({
         resolver: zodResolver(checkoutSchema),
@@ -88,6 +102,79 @@ const Checkout = () => {
             additionalInformation: "",
         },
     });
+    const zipCode = watch("zipCode");
+    const [zipLookupStatus, setZipLookupStatus] =
+        useState<ZipLookupStatus>("idle");
+
+    useEffect(() => {
+        const normalizedZipCode = normalizeZipCode(zipCode);
+
+        if (normalizedZipCode.length !== 8) {
+            setZipLookupStatus("idle");
+            return;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(async () => {
+            setZipLookupStatus("loading");
+
+            try {
+                await lookupAddressByZipCode(zipCode, controller.signal);
+                setZipLookupStatus("found");
+            } catch (error) {
+                if (controller.signal.aborted) {
+                    return;
+                }
+
+                setZipLookupStatus(
+                    error instanceof ZipCodeNotFoundError
+                        ? "not-found"
+                        : "error",
+                );
+            }
+        }, 500);
+
+        return () => {
+            window.clearTimeout(timeoutId);
+            controller.abort();
+        };
+    }, [zipCode]);
+
+    const zipCodeFeedback = (() => {
+        if (zipLookupStatus === "loading") {
+            return (
+                <p role="status" className="text-sm text-[#666]">
+                    Looking up ZIP code...
+                </p>
+            );
+        }
+
+        if (zipLookupStatus === "found") {
+            return (
+                <p role="status" className="text-sm text-green-700">
+                    ZIP code found.
+                </p>
+            );
+        }
+
+        if (zipLookupStatus === "not-found") {
+            return (
+                <p role="alert" className="text-sm text-red-600">
+                    ZIP code not found.
+                </p>
+            );
+        }
+
+        if (zipLookupStatus === "error") {
+            return (
+                <p role="alert" className="text-sm text-red-600">
+                    We could not look up this ZIP code. Please try again.
+                </p>
+            );
+        }
+
+        return null;
+    })();
 
     return (
         <Container className="bg-white">
@@ -140,6 +227,7 @@ const Checkout = () => {
                                         autoComplete="postal-code"
                                         register={register}
                                         error={errors.zipCode?.message}
+                                        feedback={zipCodeFeedback}
                                     />
                                     <BillingField
                                         id="countryRegion"
