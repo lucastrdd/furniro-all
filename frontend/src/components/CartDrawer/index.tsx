@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import { ShoppingBag, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../../context/cartStore";
 import NumberToStringRS from "../../utils/NumberToStringRS";
 
@@ -11,6 +13,8 @@ const getItemPrice = (price: number, discountPrice?: number | null) =>
     discountPrice ? price - price * (discountPrice / 100) : price;
 
 const CartDrawer = () => {
+    const navigate = useNavigate();
+    const closeButtonRef = useRef<HTMLButtonElement>(null);
     const items = useCartStore((state) => state.items);
     const isDrawerOpen = useCartStore((state) => state.isDrawerOpen);
     const closeDrawer = useCartStore((state) => state.closeDrawer);
@@ -23,18 +27,56 @@ const CartDrawer = () => {
         0,
     );
 
+    useEffect(() => {
+        if (!isDrawerOpen) {
+            return;
+        }
+
+        const previouslyFocusedElement = document.activeElement;
+        const previousBodyOverflow = document.body.style.overflow;
+
+        document.body.style.overflow = "hidden";
+        closeButtonRef.current?.focus();
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                closeDrawer();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = previousBodyOverflow;
+
+            if (
+                previouslyFocusedElement instanceof HTMLElement &&
+                previouslyFocusedElement.isConnected
+            ) {
+                previouslyFocusedElement.focus();
+            }
+        };
+    }, [isDrawerOpen, closeDrawer]);
+
+    const handleNavigation = (path: "/cart" | "/checkout") => {
+        navigate(path);
+        closeDrawer();
+    };
+
     if (!isDrawerOpen) {
         return null;
     }
 
     return (
-        <div className="fixed inset-0 z-[70] bg-black/20">
+        <div className="fixed inset-0 z-[70] bg-black/20" onClick={closeDrawer}>
             <aside
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="cart-drawer-title"
-                className="absolute top-0 right-0 flex h-[746px] max-h-dvh w-[417px] max-w-full flex-col bg-white font-poppins text-black">
-                <header className="px-[30px] pt-[26px]">
+                onClick={(event) => event.stopPropagation()}
+                className="absolute top-0 right-0 flex h-dvh w-full flex-col bg-white font-poppins text-black xxs:h-[746px] xxs:max-h-dvh xxs:w-[417px] xxs:max-w-full">
+                <header className="px-5 pt-[26px] xxs:px-[30px]">
                     <div className="flex items-center justify-between">
                         <h2
                             id="cart-drawer-title"
@@ -43,6 +85,7 @@ const CartDrawer = () => {
                         </h2>
 
                         <button
+                            ref={closeButtonRef}
                             type="button"
                             aria-label="Close shopping cart"
                             onClick={closeDrawer}
@@ -59,7 +102,7 @@ const CartDrawer = () => {
                 </header>
 
                 <div
-                    className="min-h-0 flex-1 overflow-y-auto px-[30px] py-[27px]"
+                    className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-5 py-[27px] xxs:px-[30px]"
                     aria-label="Shopping cart items">
                     {items.length === 0 ? (
                         <div className="flex h-full min-h-40 items-center justify-center text-center text-[16px] text-[#9F9F9F]">
@@ -76,8 +119,8 @@ const CartDrawer = () => {
                                 return (
                                     <li
                                         key={item.id}
-                                        className="relative grid min-h-[105px] grid-cols-[105px_minmax(0,1fr)] items-center gap-8">
-                                        <div className="flex h-[105px] w-[105px] items-center justify-center overflow-hidden rounded-[10px] bg-[#F9F1E7]">
+                                        className="relative grid min-h-[88px] grid-cols-[88px_minmax(0,1fr)] items-center gap-4 xxs:min-h-[105px] xxs:grid-cols-[105px_minmax(0,1fr)] xxs:gap-8">
+                                        <div className="flex h-[88px] w-[88px] items-center justify-center overflow-hidden rounded-[10px] bg-[#F9F1E7] xxs:h-[105px] xxs:w-[105px]">
                                             <img
                                                 src={getImageUrl(item.image)}
                                                 alt={item.name}
@@ -91,12 +134,12 @@ const CartDrawer = () => {
                                                 className="truncate text-[16px]">
                                                 {item.name}
                                             </p>
-                                            <p className="mt-2 flex items-center gap-[15px] text-[12px]">
+                                            <p className="mt-2 flex items-center gap-2 whitespace-nowrap text-[12px] xxs:gap-[15px]">
                                                 <span>{item.quantity}</span>
                                                 <span aria-hidden="true">
                                                     ×
                                                 </span>
-                                                <span className="text-over-secundary">
+                                                <span className="truncate text-over-secundary">
                                                     Rs.{" "}
                                                     {NumberToStringRS(
                                                         itemPrice,
@@ -123,24 +166,24 @@ const CartDrawer = () => {
                     )}
                 </div>
 
-                <div className="flex min-h-[70px] items-center justify-between px-[30px] text-[16px]">
+                <div className="flex min-h-[70px] items-center justify-between gap-4 px-5 text-[16px] xxs:px-[30px]">
                     <span>Subtotal</span>
-                    <span className="font-semibold text-over-secundary">
+                    <span className="min-w-0 truncate font-semibold text-over-secundary">
                         Rs. {NumberToStringRS(subtotal)}
                     </span>
                 </div>
 
-                <footer className="flex min-h-[69px] items-center gap-[14px] border-t border-[#D9D9D9] px-[30px]">
+                <footer className="flex min-h-[69px] items-center gap-[14px] border-t border-[#D9D9D9] px-5 xxs:px-[30px]">
                     <button
                         type="button"
-                        disabled
-                        className="h-[30px] w-[87px] rounded-[15px] border border-black text-[12px]">
+                        onClick={() => handleNavigation("/cart")}
+                        className="h-[30px] w-[87px] cursor-pointer rounded-[15px] border border-black text-[12px] transition hover:bg-black hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-over-secundary">
                         Cart
                     </button>
                     <button
                         type="button"
-                        disabled
-                        className="h-[30px] w-[118px] rounded-[15px] border border-black text-[12px]">
+                        onClick={() => handleNavigation("/checkout")}
+                        className="h-[30px] w-[118px] cursor-pointer rounded-[15px] border border-black text-[12px] transition hover:bg-black hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-over-secundary">
                         Checkout
                     </button>
                 </footer>
