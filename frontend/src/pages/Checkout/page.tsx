@@ -1,12 +1,40 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type FieldPath, type UseFormRegister } from "react-hook-form";
+import { z } from "zod";
 import BenefitsCard from "../../components/BenefitsCard";
 import BannerCard from "../../components/BannerCard";
 import Container from "../../components/Container";
 
+const checkoutSchema = z.object({
+    firstName: z.string().trim().min(1, "Enter your first name."),
+    lastName: z.string().trim().min(1, "Enter your last name."),
+    companyName: z.string().trim(),
+    zipCode: z
+        .string()
+        .trim()
+        .regex(/^\d{5}-?\d{3}$/, "Enter a valid ZIP code."),
+    countryRegion: z.string().trim().min(1, "Enter your country or region."),
+    streetAddress: z.string().trim().min(1, "Enter your street address."),
+    townCity: z.string().trim().min(1, "Enter your town or city."),
+    province: z.string().trim().min(1, "Enter your province."),
+    addOnAddress: z.string().trim(),
+    emailAddress: z
+        .string()
+        .trim()
+        .min(1, "Enter your email address.")
+        .email("Enter a valid email address."),
+    additionalInformation: z.string().trim(),
+});
+
+type CheckoutFormData = z.infer<typeof checkoutSchema>;
+
 type BillingFieldProps = {
-    id: string;
+    id: FieldPath<CheckoutFormData>;
     label: string;
     type?: "text" | "email";
     autoComplete?: string;
+    register: UseFormRegister<CheckoutFormData>;
+    error?: string;
 };
 
 const BillingField = ({
@@ -14,6 +42,8 @@ const BillingField = ({
     label,
     type = "text",
     autoComplete,
+    register,
+    error,
 }: BillingFieldProps) => (
     <div className="space-y-5">
         <label htmlFor={id} className="block text-base font-medium text-black">
@@ -21,15 +51,44 @@ const BillingField = ({
         </label>
         <input
             id={id}
-            name={id}
             type={type}
             autoComplete={autoComplete}
-            className="h-[75px] w-full rounded-[10px] border border-[#9F9F9F] bg-white px-5 text-base text-black outline-none transition focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F]"
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? `${id}-error` : undefined}
+            {...register(id)}
+            className="h-[75px] w-full rounded-[10px] border border-[#9F9F9F] bg-white px-5 text-base text-black outline-none transition aria-invalid:border-red-600 focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F] aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600"
         />
+        {error && (
+            <p id={`${id}-error`} role="alert" className="text-sm text-red-600">
+                {error}
+            </p>
+        )}
     </div>
 );
 
 const Checkout = () => {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<CheckoutFormData>({
+        resolver: zodResolver(checkoutSchema),
+        mode: "onBlur",
+        defaultValues: {
+            firstName: "",
+            lastName: "",
+            companyName: "",
+            zipCode: "",
+            countryRegion: "",
+            streetAddress: "",
+            townCity: "",
+            province: "",
+            addOnAddress: "",
+            emailAddress: "",
+            additionalInformation: "",
+        },
+    });
+
     return (
         <Container className="bg-white">
             <div className="w-full overflow-x-clip font-poppins leading-normal">
@@ -42,7 +101,7 @@ const Checkout = () => {
                 />
 
                 <main className="mx-auto w-full max-w-[1240px] px-4 py-12 sm:px-8 md:py-20 xl:px-0 xl:py-[98px]">
-                    <form noValidate>
+                    <form noValidate onSubmit={handleSubmit(() => undefined)}>
                         <div className="grid gap-16 lg:grid-cols-2 lg:gap-14 xl:grid-cols-[608px_533px] xl:gap-[99px]">
                             <section aria-labelledby="billing-details-title">
                                 <h2
@@ -57,11 +116,15 @@ const Checkout = () => {
                                             id="firstName"
                                             label="First Name"
                                             autoComplete="given-name"
+                                            register={register}
+                                            error={errors.firstName?.message}
                                         />
                                         <BillingField
                                             id="lastName"
                                             label="Last Name"
                                             autoComplete="family-name"
+                                            register={register}
+                                            error={errors.lastName?.message}
                                         />
                                     </div>
 
@@ -69,42 +132,56 @@ const Checkout = () => {
                                         id="companyName"
                                         label="Company Name (Optional)"
                                         autoComplete="organization"
+                                        register={register}
                                     />
                                     <BillingField
                                         id="zipCode"
                                         label="ZIP code"
                                         autoComplete="postal-code"
+                                        register={register}
+                                        error={errors.zipCode?.message}
                                     />
                                     <BillingField
                                         id="countryRegion"
                                         label="Country / Region"
                                         autoComplete="country-name"
+                                        register={register}
+                                        error={errors.countryRegion?.message}
                                     />
                                     <BillingField
                                         id="streetAddress"
                                         label="Street address"
                                         autoComplete="street-address"
+                                        register={register}
+                                        error={errors.streetAddress?.message}
                                     />
                                     <BillingField
                                         id="townCity"
                                         label="Town / City"
                                         autoComplete="address-level2"
+                                        register={register}
+                                        error={errors.townCity?.message}
                                     />
                                     <BillingField
                                         id="province"
                                         label="Province"
                                         autoComplete="address-level1"
+                                        register={register}
+                                        error={errors.province?.message}
                                     />
                                     <BillingField
                                         id="addOnAddress"
                                         label="Add-on address"
                                         autoComplete="address-line2"
+                                        register={register}
                                     />
                                     <BillingField
                                         id="emailAddress"
                                         label="Email address"
                                         type="email"
                                         autoComplete="email"
+                                        register={register}
+                                        error={errors.emailAddress?.message}
                                     />
 
                                     <div>
@@ -115,8 +192,10 @@ const Checkout = () => {
                                         </label>
                                         <textarea
                                             id="additionalInformation"
-                                            name="additionalInformation"
                                             placeholder="Additional information"
+                                            {...register(
+                                                "additionalInformation",
+                                            )}
                                             className="min-h-[75px] w-full resize-y rounded-[10px] border border-[#9F9F9F] bg-white px-5 py-6 text-base text-black outline-none transition placeholder:text-[#9F9F9F] focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F]"
                                         />
                                     </div>
@@ -215,7 +294,7 @@ const Checkout = () => {
                                     </p>
 
                                     <button
-                                        type="button"
+                                        type="submit"
                                         className="mx-auto mt-10 flex h-16 w-full max-w-[318px] items-center justify-center rounded-[15px] border border-black bg-white text-xl text-black transition hover:bg-[#F9F1E7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
                                         Place order
                                     </button>
