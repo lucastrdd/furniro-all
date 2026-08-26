@@ -1,4 +1,4 @@
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, X } from "lucide-react";
 import { useCartStore } from "../../context/cartStore";
 import NumberToStringRS from "../../utils/NumberToStringRS";
 
@@ -14,6 +14,14 @@ const CartDrawer = () => {
     const items = useCartStore((state) => state.items);
     const isDrawerOpen = useCartStore((state) => state.isDrawerOpen);
     const closeDrawer = useCartStore((state) => state.closeDrawer);
+    const removeItem = useCartStore((state) => state.removeItem);
+
+    const subtotal = items.reduce(
+        (total, item) =>
+            total +
+            getItemPrice(item.price, item.discountPrice) * item.quantity,
+        0,
+    );
 
     if (!isDrawerOpen) {
         return null;
@@ -68,7 +76,7 @@ const CartDrawer = () => {
                                 return (
                                     <li
                                         key={item.id}
-                                        className="grid min-h-[105px] grid-cols-[105px_minmax(0,1fr)] items-center gap-8">
+                                        className="relative grid min-h-[105px] grid-cols-[105px_minmax(0,1fr)] items-center gap-8">
                                         <div className="flex h-[105px] w-[105px] items-center justify-center overflow-hidden rounded-[10px] bg-[#F9F1E7]">
                                             <img
                                                 src={getImageUrl(item.image)}
@@ -96,6 +104,18 @@ const CartDrawer = () => {
                                                 </span>
                                             </p>
                                         </div>
+
+                                        <button
+                                            type="button"
+                                            aria-label={`Remove ${item.name} from cart`}
+                                            onClick={() => removeItem(item.id)}
+                                            className="absolute top-1/2 right-0 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-[#9F9F9F] text-white transition hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-over-secundary">
+                                            <X
+                                                aria-hidden="true"
+                                                size={13}
+                                                strokeWidth={2.5}
+                                            />
+                                        </button>
                                     </li>
                                 );
                             })}
@@ -106,7 +126,7 @@ const CartDrawer = () => {
                 <div className="flex min-h-[70px] items-center justify-between px-[30px] text-[16px]">
                     <span>Subtotal</span>
                     <span className="font-semibold text-over-secundary">
-                        Rs. 0.00
+                        Rs. {NumberToStringRS(subtotal)}
                     </span>
                 </div>
 
