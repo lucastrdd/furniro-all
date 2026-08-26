@@ -11,6 +11,7 @@ import Register from "./pages/Register/page";
 import Login from "./pages/Login/page";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CartDrawer from "./components/CartDrawer";
 
 const protectedPaths = ["/checkout", "/contact"];
 
@@ -38,9 +39,12 @@ const App = () => {
             <Toaster />
 
             {!isAuthPage && (
-                <Container className="bg-[#FFF]">
-                    <Header />
-                </Container>
+                <>
+                    <Container className="bg-[#FFF]">
+                        <Header />
+                    </Container>
+                    <CartDrawer />
+                </>
             )}
             {isProtectedPage ? (
                 <ProtectedRoute>{routes}</ProtectedRoute>
