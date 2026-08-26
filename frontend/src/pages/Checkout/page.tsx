@@ -1,10 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState, type ReactNode } from "react";
-import { useForm, type FieldPath, type UseFormRegister } from "react-hook-form";
+import {
+    useForm,
+    useWatch,
+    type FieldPath,
+    type UseFormRegister,
+} from "react-hook-form";
 import { z } from "zod";
 import BenefitsCard from "../../components/BenefitsCard";
 import BannerCard from "../../components/BannerCard";
 import Container from "../../components/Container";
+import { useCart } from "../../context/useCart";
 import {
     lookupAddressByZipCode,
     normalizeZipCode,
@@ -79,12 +85,27 @@ const BillingField = ({
 
 type ZipLookupStatus = "idle" | "loading" | "found" | "not-found" | "error";
 
+type ZipLookupState = {
+    zipCode: string;
+    status: ZipLookupStatus;
+};
+
+const getItemPrice = (price: number, discountPrice?: number | null) =>
+    discountPrice ? price - price * (discountPrice / 100) : price;
+
+const formatRs = (value: number) =>
+    new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(value);
+
 const Checkout = () => {
+    const { items } = useCart();
     const {
         register,
         handleSubmit,
         setValue,
-        watch,
+        control,
         formState: { errors },
     } = useForm<CheckoutFormData>({
         resolver: zodResolver(checkoutSchema),
@@ -103,25 +124,40 @@ const Checkout = () => {
             additionalInformation: "",
         },
     });
-    const zipCode = watch("zipCode");
-    const [zipLookupStatus, setZipLookupStatus] =
-        useState<ZipLookupStatus>("idle");
+    const zipCode = useWatch({ control, name: "zipCode" });
+    const normalizedZipCode = normalizeZipCode(zipCode);
+    const [zipLookup, setZipLookup] = useState<ZipLookupState>({
+        zipCode: "",
+        status: "idle",
+    });
+    const zipLookupStatus =
+        normalizedZipCode.length === 8 &&
+        zipLookup.zipCode === normalizedZipCode
+            ? zipLookup.status
+            : "idle";
+    const subtotal = items.reduce(
+        (total, item) =>
+            total +
+            getItemPrice(item.price, item.discountPrice) * item.quantity,
+        0,
+    );
+    const total = subtotal;
 
     useEffect(() => {
-        const normalizedZipCode = normalizeZipCode(zipCode);
-
         if (normalizedZipCode.length !== 8) {
-            setZipLookupStatus("idle");
             return;
         }
 
         const controller = new AbortController();
         const timeoutId = window.setTimeout(async () => {
-            setZipLookupStatus("loading");
+            setZipLookup({
+                zipCode: normalizedZipCode,
+                status: "loading",
+            });
 
             try {
                 const address = await lookupAddressByZipCode(
-                    zipCode,
+                    normalizedZipCode,
                     controller.signal,
                 );
 
@@ -141,17 +177,22 @@ const Checkout = () => {
                     shouldDirty: true,
                     shouldValidate: true,
                 });
-                setZipLookupStatus("found");
+                setZipLookup({
+                    zipCode: normalizedZipCode,
+                    status: "found",
+                });
             } catch (error) {
                 if (controller.signal.aborted) {
                     return;
                 }
 
-                setZipLookupStatus(
-                    error instanceof ZipCodeNotFoundError
-                        ? "not-found"
-                        : "error",
-                );
+                setZipLookup({
+                    zipCode: normalizedZipCode,
+                    status:
+                        error instanceof ZipCodeNotFoundError
+                            ? "not-found"
+                            : "error",
+                });
             }
         }, 500);
 
@@ -159,7 +200,7 @@ const Checkout = () => {
             window.clearTimeout(timeoutId);
             controller.abort();
         };
-    }, [setValue, zipCode]);
+    }, [normalizedZipCode, setValue]);
 
     const zipCodeFeedback = (() => {
         if (zipLookupStatus === "loading") {
@@ -325,28 +366,52 @@ const Checkout = () => {
                                             Subtotal
                                         </p>
 
-                                        <p className="min-w-0 text-base text-[#9F9F9F]">
-                                            Asgaard sofa
-                                            <span className="ml-3 text-xs font-medium text-black">
-                                                X 1
-                                            </span>
-                                        </p>
-                                        <p className="whitespace-nowrap text-right text-base font-light text-black">
-                                            Rs. 250,000.00
-                                        </p>
+                                        {items.length === 0 ? (
+                                            <p className="col-span-2 text-base text-[#9F9F9F]">
+                                                Your cart is empty.
+                                            </p>
+                                        ) : (
+                                            items.map((item) => {
+                                                const itemSubtotal =
+                                                    getItemPrice(
+                                                        item.price,
+                                                        item.discountPrice,
+                                                    ) * item.quantity;
+
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        className="col-span-2 grid grid-cols-[minmax(0,1fr)_auto] gap-x-6">
+                                                        <p className="min-w-0 text-base text-[#9F9F9F]">
+                                                            {item.name}
+                                                            <span className="ml-3 text-xs font-medium text-black">
+                                                                X{" "}
+                                                                {item.quantity}
+                                                            </span>
+                                                        </p>
+                                                        <p className="whitespace-nowrap text-right text-base font-light text-black">
+                                                            Rs.{" "}
+                                                            {formatRs(
+                                                                itemSubtotal,
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
 
                                         <p className="text-base text-black">
                                             Subtotal
                                         </p>
                                         <p className="whitespace-nowrap text-right text-base font-light text-black">
-                                            Rs. 250,000.00
+                                            Rs. {formatRs(subtotal)}
                                         </p>
 
                                         <p className="self-center text-base text-black">
                                             Total
                                         </p>
                                         <p className="whitespace-nowrap text-right text-2xl font-bold text-[#B88E2F]">
-                                            Rs. 250,000.00
+                                            Rs. {formatRs(total)}
                                         </p>
                                     </div>
                                 </div>
