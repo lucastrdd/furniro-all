@@ -36,6 +36,9 @@ const checkoutSchema = z.object({
         .min(1, "Enter your email address.")
         .email("Enter a valid email address."),
     additionalInformation: z.string().trim(),
+    paymentMethod: z.enum(["bank-transfer", "cash-on-delivery"], {
+        error: "Select a payment method.",
+    }),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
@@ -122,9 +125,11 @@ const Checkout = () => {
             addOnAddress: "",
             emailAddress: "",
             additionalInformation: "",
+            paymentMethod: undefined,
         },
     });
     const zipCode = useWatch({ control, name: "zipCode" });
+    const paymentMethod = useWatch({ control, name: "paymentMethod" });
     const normalizedZipCode = normalizeZipCode(zipCode);
     const [zipLookup, setZipLookup] = useState<ZipLookupState>({
         zipCode: "",
@@ -417,30 +422,46 @@ const Checkout = () => {
                                 </div>
 
                                 <div className="pt-6">
-                                    <div className="flex items-center gap-4 text-base text-black">
-                                        <span
-                                            aria-hidden="true"
-                                            className="h-[14px] w-[14px] shrink-0 rounded-full bg-black"
-                                        />
-                                        <span>Direct Bank Transfer</span>
-                                    </div>
-                                    <p className="mt-3 text-justify text-base font-light text-[#9F9F9F]">
-                                        Make your payment directly into our bank
-                                        account. Please use your Order ID as the
-                                        payment reference. Your order will not
-                                        be shipped until the funds have cleared
-                                        in our account.
-                                    </p>
+                                    {paymentMethod === "bank-transfer" && (
+                                        <div>
+                                            <div className="flex items-center gap-4 text-base text-black">
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="h-[14px] w-[14px] shrink-0 rounded-full bg-black"
+                                                />
+                                                <span>
+                                                    Direct Bank Transfer
+                                                </span>
+                                            </div>
+                                            <p className="mt-3 text-justify text-base font-light text-[#9F9F9F]">
+                                                Make your payment directly into
+                                                our bank account. Please use
+                                                your Order ID as the payment
+                                                reference. Your order will not
+                                                be shipped until the funds have
+                                                cleared in our account.
+                                            </p>
+                                        </div>
+                                    )}
 
-                                    <fieldset className="mt-6 space-y-4 text-base text-[#9F9F9F]">
+                                    <fieldset
+                                        aria-invalid={Boolean(
+                                            errors.paymentMethod,
+                                        )}
+                                        aria-describedby={
+                                            errors.paymentMethod
+                                                ? "paymentMethod-error"
+                                                : undefined
+                                        }
+                                        className="mt-6 space-y-4 text-base text-[#9F9F9F]">
                                         <legend className="sr-only">
                                             Payment method
                                         </legend>
                                         <label className="flex cursor-pointer items-center gap-4">
                                             <input
                                                 type="radio"
-                                                name="paymentMethod"
                                                 value="bank-transfer"
+                                                {...register("paymentMethod")}
                                                 className="h-[14px] w-[14px] accent-black"
                                             />
                                             Direct Bank Transfer
@@ -448,12 +469,20 @@ const Checkout = () => {
                                         <label className="flex cursor-pointer items-center gap-4">
                                             <input
                                                 type="radio"
-                                                name="paymentMethod"
                                                 value="cash-on-delivery"
+                                                {...register("paymentMethod")}
                                                 className="h-[14px] w-[14px] accent-black"
                                             />
                                             Cash On Delivery
                                         </label>
+                                        {errors.paymentMethod && (
+                                            <p
+                                                id="paymentMethod-error"
+                                                role="alert"
+                                                className="text-sm text-red-600">
+                                                {errors.paymentMethod.message}
+                                            </p>
+                                        )}
                                     </fieldset>
 
                                     <p className="mt-7 text-justify text-base font-light text-black">
