@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { LogOut } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../context/authStore";
 import { useCartStore } from "../../context/cartStore";
@@ -13,9 +13,41 @@ type RightMenuProps = {
 
 const RightMenu = ({ className, onCartClick }: RightMenuProps) => {
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+    const accountMenuRef = useRef<HTMLDivElement>(null);
+    const accountButtonRef = useRef<HTMLButtonElement>(null);
     const { user, isAuthenticated } = useAuth();
     const openDrawer = useCartStore((state) => state.openDrawer);
     const linkHover = "hover:cursor-pointer hover:scale-110 transition";
+
+    useEffect(() => {
+        if (!isAccountMenuOpen) {
+            return;
+        }
+
+        const handlePointerDown = (event: PointerEvent) => {
+            if (
+                event.target instanceof Node &&
+                !accountMenuRef.current?.contains(event.target)
+            ) {
+                setIsAccountMenuOpen(false);
+            }
+        };
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setIsAccountMenuOpen(false);
+                accountButtonRef.current?.focus();
+            }
+        };
+
+        document.addEventListener("pointerdown", handlePointerDown);
+        document.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            document.removeEventListener("pointerdown", handlePointerDown);
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isAccountMenuOpen]);
 
     const handleLogout = () => {
         useAuthStore.persist.clearStorage();
@@ -29,12 +61,17 @@ const RightMenu = ({ className, onCartClick }: RightMenuProps) => {
 
     return (
         <div className={clsx("flex items-center gap-[33.66px]", className)}>
-            <div className="relative flex items-center">
+            <div ref={accountMenuRef} className="relative flex items-center">
                 {isAuthenticated ? (
                     <>
                         <button
+                            ref={accountButtonRef}
                             type="button"
-                            aria-label="Open account menu"
+                            aria-label={
+                                isAccountMenuOpen
+                                    ? "Close account menu"
+                                    : "Open account menu"
+                            }
                             aria-haspopup="menu"
                             aria-expanded={isAccountMenuOpen}
                             onClick={() =>
