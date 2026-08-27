@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CartDrawer from "./components/CartDrawer";
 import Checkout from "./pages/Checkout/page";
 import Contact from "./pages/Contact/page";
+import CartSession from "./components/CartSession";
 
 const protectedPaths = ["/checkout", "/contact"];
 
@@ -41,6 +42,7 @@ const App = () => {
     return (
         <>
             <Toaster />
+            <CartSession />
 
             {!isAuthPage && (
                 <>

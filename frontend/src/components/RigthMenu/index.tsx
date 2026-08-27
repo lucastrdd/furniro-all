@@ -3,7 +3,7 @@ import { LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../context/authStore";
-import { useCartStore } from "../../context/cartStore";
+import { disconnectUserCart, useCartStore } from "../../context/cartStore";
 import { useAuth } from "../../context/useAuth";
 
 type RightMenuProps = {
@@ -50,6 +50,8 @@ const RightMenu = ({ className, onCartClick }: RightMenuProps) => {
     }, [isAccountMenuOpen]);
 
     const handleLogout = () => {
+        disconnectUserCart();
+        useAuthStore.getState().clearSession();
         useAuthStore.persist.clearStorage();
         window.location.replace("/");
     };
