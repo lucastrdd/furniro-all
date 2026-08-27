@@ -1,5 +1,6 @@
 import BannerCard from "../../components/BannerCard";
 import BenefitsCard from "../../components/BenefitsCard";
+import ContactForm from "../../components/ContactForm";
 import ContactInfo from "../../components/ContactInfo";
 import Container from "../../components/Container";
 
@@ -36,11 +37,7 @@ const Contact = () => {
 
                         <div className="mt-14 grid min-w-0 gap-14 sm:mt-20 lg:mt-[119px] lg:grid-cols-[300px_minmax(0,635px)] lg:gap-[79px]">
                             <ContactInfo />
-
-                            <section
-                                aria-label="Contact form"
-                                className="min-h-[620px] min-w-0"
-                            />
+                            <ContactForm />
                         </div>
                     </section>
                 </main>
