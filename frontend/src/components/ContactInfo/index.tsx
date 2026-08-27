@@ -40,20 +40,20 @@ const contactItems = [
 
 const ContactInfo = () => {
     return (
-        <div className="flex flex-col gap-10 sm:gap-[42px] lg:pt-[6px]">
+        <div className="grid min-w-0 gap-10 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:flex lg:flex-col lg:gap-[42px] lg:pl-12 lg:pt-[6px]">
             {contactItems.map(({ icon: Icon, title, content }) => (
                 <article
                     key={title}
-                    className="grid grid-cols-[30px_minmax(0,1fr)] gap-x-[27px]">
+                    className="grid min-w-0 grid-cols-[26px_minmax(0,1fr)] gap-x-5 sm:grid-cols-[30px_minmax(0,1fr)] sm:gap-x-[27px]">
                     <Icon
                         aria-hidden="true"
-                        className="mt-1 h-[22px] w-[22px] text-black sm:h-[23px] sm:w-[23px]"
+                        className="mt-1 h-[21px] w-[21px] text-black sm:h-[23px] sm:w-[23px]"
                     />
-                    <div>
-                        <h3 className="text-[22px] font-medium leading-[1.5] text-black sm:text-[24px]">
+                    <div className="min-w-0">
+                        <h3 className="text-[21px] font-medium leading-[1.5] text-black sm:text-[24px]">
                             {title}
                         </h3>
-                        <div className="max-w-[220px] text-[16px] leading-[1.5] text-black">
+                        <div className="max-w-[220px] text-[15px] leading-[1.5] text-black sm:text-[16px]">
                             {content}
                         </div>
                     </div>

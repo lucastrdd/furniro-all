@@ -8,7 +8,7 @@ import {
 } from "../../pages/Contact/contact.schema";
 
 const fieldClassName =
-    "h-[75px] w-full rounded-[10px] border border-[#9F9F9F] bg-white px-[29px] text-[16px] text-black outline-none transition placeholder:text-[#9F9F9F] aria-invalid:border-red-600 focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F] aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600";
+    "h-16 w-full min-w-0 rounded-[10px] border border-[#9F9F9F] bg-white px-5 text-[16px] text-black outline-none transition placeholder:text-[#9F9F9F] aria-invalid:border-red-600 focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F] aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600 sm:h-[75px] sm:px-[29px]";
 
 const ContactForm = () => {
     const {
@@ -30,12 +30,12 @@ const ContactForm = () => {
             noValidate
             aria-label="Contact form"
             onSubmit={handleSubmit(handleContactSubmit)}
-            className="w-full max-w-[531px]">
-            <div className="space-y-9">
+            className="w-full min-w-0 max-w-[531px] lg:justify-self-end">
+            <div className="space-y-8 sm:space-y-9">
                 <div>
                     <label
                         htmlFor="name"
-                        className="mb-[22px] block text-[16px] font-medium text-black">
+                        className="mb-3.5 block text-[16px] font-medium text-black sm:mb-[22px]">
                         Your name
                     </label>
                     <input
@@ -63,7 +63,7 @@ const ContactForm = () => {
                 <div>
                     <label
                         htmlFor="email"
-                        className="mb-[22px] block text-[16px] font-medium text-black">
+                        className="mb-3.5 block text-[16px] font-medium text-black sm:mb-[22px]">
                         Email address
                     </label>
                     <input
@@ -92,7 +92,7 @@ const ContactForm = () => {
                 <div>
                     <label
                         htmlFor="subject"
-                        className="mb-[22px] block text-[16px] font-medium text-black">
+                        className="mb-3.5 block text-[16px] font-medium text-black sm:mb-[22px]">
                         Subject
                     </label>
                     <input
@@ -107,21 +107,21 @@ const ContactForm = () => {
                 <div>
                     <label
                         htmlFor="message"
-                        className="mb-[22px] block text-[16px] font-medium text-black">
+                        className="mb-3.5 block text-[16px] font-medium text-black sm:mb-[22px]">
                         Message
                     </label>
                     <textarea
                         id="message"
                         placeholder="Hi! I'd like to ask about"
                         {...register("message")}
-                        className="min-h-[120px] w-full resize-y rounded-[10px] border border-[#9F9F9F] bg-white px-[29px] py-[26px] text-[16px] text-black outline-none transition placeholder:text-[#9F9F9F] focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F]"
+                        className="min-h-[110px] w-full min-w-0 resize-y rounded-[10px] border border-[#9F9F9F] bg-white px-5 py-5 text-[16px] text-black outline-none transition placeholder:text-[#9F9F9F] focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F] sm:min-h-[120px] sm:px-[29px] sm:py-[26px]"
                     />
                 </div>
             </div>
 
             <button
                 type="submit"
-                className="mt-[45px] inline-flex h-[55px] w-full max-w-[237px] cursor-pointer items-center justify-center rounded-[5px] border border-[#B88E2F] bg-[#B88E2F] text-[16px] text-white transition hover:bg-[#A47E2A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B88E2F]">
+                className="mt-9 inline-flex h-[55px] w-full cursor-pointer items-center justify-center rounded-[5px] border border-[#B88E2F] bg-[#B88E2F] text-[16px] text-white transition hover:bg-[#A47E2A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B88E2F] sm:mt-[45px] sm:max-w-[237px]">
                 Submit
             </button>
         </form>
