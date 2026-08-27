@@ -14,6 +14,7 @@ const ContactForm = () => {
     const {
         register,
         handleSubmit,
+        reset,
         formState: { errors },
     } = useForm<ContactFormData>({
         resolver: zodResolver(contactSchema),
@@ -23,6 +24,7 @@ const ContactForm = () => {
 
     const handleContactSubmit = () => {
         toast.success("Message sent successfully!");
+        reset(contactDefaultValues);
     };
 
     return (

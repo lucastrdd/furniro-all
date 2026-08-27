@@ -28,6 +28,7 @@ const Checkout = () => {
         }
 
         toast.success("Order placed successfully!");
+        form.reset(checkoutDefaultValues);
     };
 
     return (
