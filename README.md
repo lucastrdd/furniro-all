@@ -581,6 +581,7 @@ Os volumes mapeiam o código local para os containers, permitindo hot reload dur
 
 - Docker
 - Docker Compose
+- Node.js 22, para execução sem Docker
 
 ### Configuração
 
@@ -623,7 +624,9 @@ A aplicação ficará disponível em:
 
 ### Sem Docker
 
-É necessário possuir Node.js e uma instância do MongoDB configurada com Replica Set.
+É necessário possuir Node.js 22 e uma instância do MongoDB configurada com o Replica Set `rs0`.
+
+Os comandos devem ser executados separadamente dentro das pastas `backend` e `frontend`. O `package.json` da raiz não inicia os dois serviços.
 
 #### Backend
 
@@ -640,6 +643,7 @@ npm run dev
 
 ```bash
 cd frontend
+cp .env.example .env
 npm install
 npm run dev
 ```
