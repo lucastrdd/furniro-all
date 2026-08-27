@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import {
     contactDefaultValues,
     contactSchema,
@@ -20,11 +21,15 @@ const ContactForm = () => {
         defaultValues: contactDefaultValues,
     });
 
+    const handleContactSubmit = () => {
+        toast.success("Message sent successfully!");
+    };
+
     return (
         <form
             noValidate
             aria-label="Contact form"
-            onSubmit={handleSubmit(() => undefined)}
+            onSubmit={handleSubmit(handleContactSubmit)}
             className="w-full max-w-[531px]">
             <div className="space-y-9">
                 <div>
