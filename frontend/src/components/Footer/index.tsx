@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useState } from "react";
+import { type SyntheticEvent, useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
@@ -9,6 +9,17 @@ const Footer = () => {
     const validateEmail = (email: string): boolean => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
+    };
+
+    const handleNewsletterSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        if (validateEmail(email)) {
+            toast.success("You are subscribed.");
+            setEmail("");
+        } else {
+            toast.error("Invalid email.");
+        }
     };
 
     return (
@@ -80,7 +91,8 @@ const Footer = () => {
                         Newsletter
                     </h1>
                     <form
-                        onSubmit={(e) => e.preventDefault()}
+                        noValidate
+                        onSubmit={handleNewsletterSubmit}
                         className={clsx(
                             "flex flex-wrap gap-2.75 text-[16px] font-medium",
                         )}>
@@ -92,22 +104,15 @@ const Footer = () => {
                                 "min-w-0 max-w-full py-0.75 w-50",
                                 "border-b border-b-black",
                             )}
-                            required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}></input>
 
                         <button
+                            type="submit"
                             className={clsx(
                                 "border-b border-b-black",
                                 "cursor-pointer hover:opacity-70",
-                            )}
-                            onClick={() => {
-                                if (validateEmail(email)) {
-                                    toast.success("You are subscribed.");
-                                } else {
-                                    toast.error("Invalid email.");
-                                }
-                            }}>
+                            )}>
                             SUBSCRIBE
                         </button>
                     </form>

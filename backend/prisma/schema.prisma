@@ -39,6 +39,7 @@ model ProductCart {
   user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@unique([userId, productSlug, currentColor, currentSize])
 }
 
 model User {
