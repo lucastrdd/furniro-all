@@ -13,6 +13,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CartDrawer from "./components/CartDrawer";
 import Checkout from "./pages/Checkout/page";
+import Contact from "./pages/Contact/page";
 
 const protectedPaths = ["/checkout", "/contact"];
 
@@ -30,6 +31,7 @@ const App = () => {
             <Route path="/product/:slug" element={<Product />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<NotFoundPage />} />
