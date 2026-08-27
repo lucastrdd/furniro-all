@@ -1,23 +1,23 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
-type ContactFormData = {
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-};
+import {
+    contactDefaultValues,
+    contactSchema,
+    type ContactFormData,
+} from "../../pages/Contact/contact.schema";
 
 const fieldClassName =
-    "h-[75px] w-full rounded-[10px] border border-[#9F9F9F] bg-white px-[29px] text-[16px] text-black outline-none transition placeholder:text-[#9F9F9F] focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F]";
+    "h-[75px] w-full rounded-[10px] border border-[#9F9F9F] bg-white px-[29px] text-[16px] text-black outline-none transition placeholder:text-[#9F9F9F] aria-invalid:border-red-600 focus:border-[#B88E2F] focus:ring-1 focus:ring-[#B88E2F] aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600";
 
 const ContactForm = () => {
-    const { register, handleSubmit } = useForm<ContactFormData>({
-        defaultValues: {
-            name: "",
-            email: "",
-            subject: "",
-            message: "",
-        },
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ContactFormData>({
+        resolver: zodResolver(contactSchema),
+        mode: "onBlur",
+        defaultValues: contactDefaultValues,
     });
 
     return (
@@ -38,9 +38,21 @@ const ContactForm = () => {
                         type="text"
                         autoComplete="name"
                         placeholder="Abc"
+                        aria-invalid={Boolean(errors.name)}
+                        aria-describedby={
+                            errors.name ? "name-error" : undefined
+                        }
                         {...register("name")}
                         className={fieldClassName}
                     />
+                    {errors.name && (
+                        <p
+                            id="name-error"
+                            role="alert"
+                            className="mt-2 text-sm text-red-600">
+                            {errors.name.message}
+                        </p>
+                    )}
                 </div>
 
                 <div>
@@ -55,9 +67,21 @@ const ContactForm = () => {
                         autoComplete="email"
                         inputMode="email"
                         placeholder="Abc@def.com"
+                        aria-invalid={Boolean(errors.email)}
+                        aria-describedby={
+                            errors.email ? "email-error" : undefined
+                        }
                         {...register("email")}
                         className={fieldClassName}
                     />
+                    {errors.email && (
+                        <p
+                            id="email-error"
+                            role="alert"
+                            className="mt-2 text-sm text-red-600">
+                            {errors.email.message}
+                        </p>
+                    )}
                 </div>
 
                 <div>
