@@ -3,30 +3,65 @@ import Container from "./components/Container";
 import Header from "./components/Header";
 import Home from "./pages/Home/page";
 import Footer from "./components/Footer";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Product from "./pages/Product/page";
 import Shop from "./pages/Shop/page";
 import Cart from "./pages/Cart/page";
+import Register from "./pages/Register/page";
+import Login from "./pages/Login/page";
 import NotFoundPage from "./pages/NotFoundPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import CartDrawer from "./components/CartDrawer";
+import Checkout from "./pages/Checkout/page";
+import Contact from "./pages/Contact/page";
+import CartSession from "./components/CartSession";
+
+const protectedPaths = ["/checkout", "/contact"];
 
 const App = () => {
+    const { pathname } = useLocation();
+    const isAuthPage = pathname === "/register" || pathname === "/login";
+    const isProtectedPage = protectedPaths.some(
+        (path) => pathname === path || pathname.startsWith(`${path}/`),
+    );
+
+    const routes = (
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/shop/:category?" element={<Shop />} />
+            <Route path="/product/:slug" element={<Product />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+    );
+
     return (
         <>
             <Toaster />
+            <CartSession />
 
-            <Container className="bg-[#FFF]">
-                <Header />
-            </Container>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/shop/:category?" element={<Shop />} />
-                <Route path="/product/:slug" element={<Product />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-            <Container className="bg-primary border-t border-t-[rgba(0,0,0,0.17)]">
-                <Footer />
-            </Container>
+            {!isAuthPage && (
+                <>
+                    <Container className="bg-[#FFF]">
+                        <Header />
+                    </Container>
+                    <CartDrawer />
+                </>
+            )}
+            {isProtectedPage ? (
+                <ProtectedRoute>{routes}</ProtectedRoute>
+            ) : (
+                routes
+            )}
+            {!isAuthPage && (
+                <Container className="bg-primary border-t border-t-[rgba(0,0,0,0.17)]">
+                    <Footer />
+                </Container>
+            )}
         </>
     );
 };

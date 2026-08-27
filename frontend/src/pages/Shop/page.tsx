@@ -58,6 +58,7 @@ const Shop = () => {
                     limit,
                     sort: sort ?? undefined,
                 });
+
                 setProducts(data.products);
                 setTotal(data.total);
                 setTotalPages(data.totalPages);
@@ -73,6 +74,7 @@ const Shop = () => {
 
     useEffect(() => {
         if (loading || error) return;
+
         if (totalPages > 0 && page > totalPages) {
             const next = new URLSearchParams(searchParams);
             next.set("page", String(totalPages));
@@ -84,7 +86,11 @@ const Shop = () => {
         const next = new URLSearchParams(searchParams);
         next.set("page", String(newPage));
         setSearchParams(next);
-        gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        gridRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
     };
 
     return (
@@ -118,17 +124,19 @@ const Shop = () => {
                 {!loading && !error && products.length === 0 && (
                     <p className="text-center">No products found.</p>
                 )}
+
                 {!loading && !error && products.length > 0 && (
                     <div ref={gridRef}>
                         <div
                             className={clsx(
-                                "max-w-[1240px] w-full mx-auto",
-                                "grid grid-cols-4 gap-8",
+                                "mx-auto grid w-full max-w-[1240px] gap-8",
+                                "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
                             )}>
                             {products.map((product) => (
                                 <OurProductsCard
                                     key={product.id}
-                                    produto={product}></OurProductsCard>
+                                    produto={product}
+                                />
                             ))}
                         </div>
 
